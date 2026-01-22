@@ -40,22 +40,22 @@ class PCFG(PCFG_base):
         def Xyz(y, z, rule):
             n = y.shape[1]
             b_n_yz = (y + z).reshape(batch, n, T * T)
-            b_n_x = contract(b_n_yz.unsqueeze(-2) + rule.unsqueeze(1))
-            return b_n_x
+            b_n_x = contract(b_n_yz.unsqueeze(-2) + rule.unsqueeze(1)) # [b, n, 1, T*T] + [b, 1, NT, T*T]
+            return b_n_x    #[b, n, NT]
 
         @checkpoint
         def XYZ(Y, Z, rule):
             n = Y.shape[1]
-            b_n_yz = contract(Y[:, :, 1:-1, :].unsqueeze(-1) + Z[:, :, 1:-1, :].unsqueeze(-2), dim=2).reshape(batch, n, -1)
-            b_n_x = contract(b_n_yz.unsqueeze(2) + rule.unsqueeze(1))
-            return b_n_x
+            b_n_yz = contract(Y[:, :, 1:-1, :].unsqueeze(-1) + Z[:, :, 1:-1, :].unsqueeze(-2), dim=2).reshape(batch, n, -1) # [b, n, NT*NT]
+            b_n_x = contract(b_n_yz.unsqueeze(2) + rule.unsqueeze(1)) # [b, n, 1, NT*NT] + [b, 1, NT, NT*NT]
+            return b_n_x    #[b, n, NT]
 
         @checkpoint
         def XYz(Y, z, rule):
             n = Y.shape[1]
-            Y = Y[:, :, -1, :, None]
+            Y = Y[:, :, -1, :, None] # Y:[b, n, NT, 1], z:[b, n, 1, T]
             b_n_yz = (Y + z).reshape(batch, n, NT * T)
-            b_n_x = contract(b_n_yz.unsqueeze(-2) + rule.unsqueeze(1))
+            b_n_x = contract(b_n_yz.unsqueeze(-2) + rule.unsqueeze(1)) # [b, n, 1, NT*T] + [b, 1, NT, NT*T]
             return b_n_x
 
 
@@ -71,14 +71,13 @@ class PCFG(PCFG_base):
         for w in range(2, N):
             n = N - w
 
-            Y_term = terms[:, :n, :, None]
+            Y_term = terms[:, :n, :, None]  # 每一个“：”都是terminal,利用broadcast获得T*T的矩阵
             Z_term = terms[:, w - 1:, None, :]
 
             if w == 2:
                 diagonal_copy_(s, Xyz(Y_term, Z_term, X_y_z) + span_indicator[:, torch.arange(n), torch.arange(n) + w].unsqueeze(-1), w)
                 continue
 
-            n = N - w
             x = terms.new_zeros(3, batch, n, NT).fill_(-1e9)
 
             Y = stripe(s, n, w - 1, (0, 1)).clone()

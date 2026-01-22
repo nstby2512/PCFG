@@ -17,7 +17,7 @@ class TDPCFG(PCFG_base):
     @torch.enable_grad()
     def _inside(self, rules, lens, mbr=False, viterbi=False):
         assert viterbi is not True
-        unary = rules['unary']
+        unary = rules['unary'] # (b, n, T)
         root = rules['root']
 
 
@@ -78,13 +78,13 @@ class TDPCFG(PCFG_base):
         # for estimating marginals.
         span_indicator = unary.new_zeros(batch, N, N).requires_grad_(mbr)
 
-        left_term = transform_left_t(unary,L_term)
-        right_term = transform_right_t(unary,R_term)
+        left_term = transform_left_t(unary,L_term) #[b, n, r]
+        right_term = transform_right_t(unary,R_term) #[b, n, r]
 
         s = unary.new_zeros(batch, N, N, NT).fill_(-1e9)
         # for caching V^{T}s_{i,k} and W^{T}s_{k+1,j} as described in paper to decrease complexities.
-        left_s = unary.new_zeros(batch, N, N, L.shape[2]).fill_(-1e9)
-        right_s = unary.new_zeros(batch, N, N, L.shape[2]).fill_(-1e9)
+        left_s = unary.new_zeros(batch, N, N, L.shape[2]).fill_(-1e9) #[b, N, N, r]
+        right_s = unary.new_zeros(batch, N, N, L.shape[2]).fill_(-1e9) #[b, N, N, r]
 
         diagonal_copy_(left_s, left_term, w=1)
         diagonal_copy_(right_s, right_term, w=1)
