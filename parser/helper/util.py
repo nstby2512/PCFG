@@ -1,7 +1,7 @@
 import time
 import os
 import logging
-from distutils.dir_util import copy_tree
+from shutil import copytree # distutils不支持3.10及以上
 
 from parser.model import NeuralPCFG, CompoundPCFG, TNPCFG, NeuralBLPCFG, NeuralLPCFG, FastTNPCFG, FastNBLPCFG, Simple_N_PCFG, Simple_C_PCFG
 
@@ -85,6 +85,6 @@ def create_save_path(args):
     import shutil
     shutil.copyfile(args.conf, args.save_dir + "/config.yaml")
     os.makedirs(args.save_dir + "/parser")
-    copy_tree("parser/", args.save_dir + "/parser")
+    copytree("parser/", os.path.join(args.save_dir, "parser"), dirs_exist_ok=True)
     return  saved_name
 

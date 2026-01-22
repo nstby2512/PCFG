@@ -40,7 +40,7 @@ class TNPCFG(nn.Module):
 
     def forward(self, input, **kwargs):
         x = input['word']
-        b, n = x.shape[:2] # b 是句子数
+        b, n = x.shape[:2]
 
         def roots():
             roots = self.root_mlp(self.root_emb).log_softmax(-1)

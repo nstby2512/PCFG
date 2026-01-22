@@ -9,10 +9,10 @@ from parser.cmds.cmd import CMD
 from parser.helper.metric import Metric
 from parser.helper.loader_wrapper import DataPrefetcher
 import torch
-import numpy as np
+# import numpy as np
 from parser.helper.util import *
 from parser.helper.data_module import DataModule
-import click
+# import click
 
 class Evaluate(CMD):
 
