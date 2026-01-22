@@ -19,6 +19,8 @@ class DataModule():
     def prepare_data(self):
         pass
 
+
+    # dataset：word, gold_tree, seq_len
     def setup(self):
         data = self.hparams.data
         train_dataset = DataSet()

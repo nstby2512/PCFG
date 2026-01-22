@@ -3,17 +3,20 @@ from parser.pcfgs.fn import  stripe, diagonal_copy_, diagonal
 
 class PCFG_base():
 
+    # inside获得概率
     def _inside(self):
         raise NotImplementedError
 
     def inside(self, rules, lens):
         return self._inside(rules, lens)
 
+    # 在evaluate时候运用（ ？和inside运用的详细区分——除了grad，这个真需要grad吗）
     @torch.enable_grad()
     def decode(self, rules, lens, viterbi=False, mbr=False):
         return self._inside(rules=rules, lens=lens, viterbi=viterbi, mbr=mbr)
 
 
+    # 利用train完的pcfg,预测句法树
     def _get_prediction(self, logZ, span_indicator, lens, mbr=False):
         batch, seq_len = span_indicator.shape[:2]
         prediction = [[] for _ in range(batch)]
@@ -31,6 +34,7 @@ class PCFG_base():
         return prediction
 
 
+    # cky获得最优句法树
     @torch.no_grad()
     def _cky_zero_order(self, marginals, lens):
         N = marginals.shape[-1]
@@ -64,6 +68,7 @@ class PCFG_base():
         spans = [backtrack(p[i], 0, length) for i, length in enumerate(lens)]
         return spans
 
+    # 
     def get_plus_semiring(self, viterbi):
         if viterbi:
             def plus(x, dim):

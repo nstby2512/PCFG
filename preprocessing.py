@@ -2,6 +2,15 @@ from nltk import Tree
 import argparse
 import pickle
 
+"""
+将dataset变成tree格式的数据
+
+'word': [('The', 'dog', 'eats'), ...],           
+    'pos': [('DT', 'NN', 'VBZ'), ...],               
+    'gold_tree': [                                 
+        [[0, 3, 'S'], [0, 2, 'NP'], [2, 3, 'VP']],   
+        [[0, 5, 'S'], ...],
+"""
 
 def factorize(tree):
     def track(tree, i):

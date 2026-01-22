@@ -30,6 +30,7 @@ class TNPCFG(nn.Module):
                                       ResLayer(self.s_dim, self.s_dim),
                                       nn.Linear(self.s_dim, self.V))
 
+        # rules
         self.rule_state_emb = nn.Parameter(torch.randn(self.NT+self.T, self.s_dim))
         rule_dim = self.s_dim
         self.parent_mlp = nn.Sequential(nn.Linear(rule_dim,rule_dim),nn.ReLU(),nn.Linear(rule_dim,self.r))
@@ -39,7 +40,7 @@ class TNPCFG(nn.Module):
 
     def forward(self, input, **kwargs):
         x = input['word']
-        b, n = x.shape[:2]
+        b, n = x.shape[:2] # b 是句子数
 
         def roots():
             roots = self.root_mlp(self.root_emb).log_softmax(-1)
@@ -47,11 +48,12 @@ class TNPCFG(nn.Module):
 
         def terms():
             term_prob = self.term_mlp(self.term_emb).log_softmax(-1)
-            return term_prob[torch.arange(self.T)[None,None], x[:, :, None]]
+            return term_prob[torch.arange(self.T)[None,None], x[:, :, None]]   # [None, None]等价于unsqueeze(0)
 
         def rules():
             rule_state_emb = self.rule_state_emb
             nonterm_emb = rule_state_emb[:self.NT]
+            # 论文中 theorem1 提到了, U is row-normalized, V W is column-normalized
             head = self.parent_mlp(nonterm_emb).log_softmax(-1)
             left = self.left_mlp(rule_state_emb).log_softmax(-2)
             right = self.right_mlp(rule_state_emb).log_softmax(-2)

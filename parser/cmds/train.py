@@ -1,14 +1,16 @@
 # -*- coding: utf-8 -*-
 
 from datetime import datetime, timedelta
+import torch
+import numpy as np
+from pathlib import Path
+
 from parser.cmds.cmd import CMD
 from parser.helper.metric import Metric
 from parser.helper.loader_wrapper import DataPrefetcher
-import torch
-import numpy as np
 from parser.helper.util import *
 from parser.helper.data_module import DataModule
-from pathlib import Path
+
 
 class Train(CMD):
 

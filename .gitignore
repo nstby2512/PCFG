@@ -8,9 +8,8 @@ pcfg.zip
 *.err
 *.out
 .history/
-data/
 log/
-data/
+data/ptb_origin/
 log/
 test.py
 .idea/
