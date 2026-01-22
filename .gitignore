@@ -8,7 +8,6 @@ pcfg.zip
 *.err
 *.out
 .history/
-data/
 log/
 data/
 log/
